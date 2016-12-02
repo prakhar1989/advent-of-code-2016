@@ -2,26 +2,17 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
+(def compass {:north 0 :east 1 :south 2 :west 3})
+(def turn {\R 1 \L -1})
+
 (defn new-pos [[dir [x y]] step]
-  (let [d (first step)
-        delta (->> (rest step) (apply str) (read-string))]
+  (let [delta (->> (rest step) (apply str) (read-string))
+        newdir (mod (+ (compass dir) (turn (first step))) 4)]
     (cond
-      (= dir :north)
-        (if (= d \R)
-          [:east [(+ x delta) y]]
-          [:west [(- x delta) y]])
-      (= dir :south)
-        (if (= d \R)
-          [:west [(- x delta) y]]
-          [:east [(+ x delta) y]])
-      (= dir :east)
-        (if (= d \R)
-          [:south [x (- y delta)]]
-          [:north [x (+ y delta)]])
-      (= dir :west)
-        (if (= d \R)
-          [:north [x (+ y delta)]]
-          [:south [x (- y delta)]]))))
+      (= newdir 0) [:north [x (+ delta y)]]
+      (= newdir 1) [:east  [(+ x delta) y]]
+      (= newdir 2) [:south [x (- y delta)]]
+      (= newdir 3) [:west  [(- x delta) y]])))
 
 (defn get-steps [filename]
   (let [input (slurp (io/resource filename))]
