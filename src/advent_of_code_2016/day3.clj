@@ -3,8 +3,7 @@
             [clojure.string :as str]))
 
 (def input
-  (->> (-> (slurp (io/resource "day3-input.txt"))
-           (str/split #"\n"))
+  (->> (str/split (slurp (io/resource "day3-input.txt")) #"\n")
        (map #(str/trim %))
        (map (fn [line] (->> (str/split line #" ")
                             (filter (comp not empty?))
@@ -13,13 +12,10 @@
 (defn is-valid-triangle? [[a b c]]
   (and (> (+ a b) c) (> (+ b c) a) (> (+ a c) b)))
 
-(defn part-1 []
-  (->> input (filter is-valid-triangle?) (count)))
+(defn part-1 [data]
+  (->> data (filter is-valid-triangle?) (count)))
 
 (defn part-2 []
-  (->> (mapcat
-         (fn [idx]
-           (partition 3 (map #(nth % idx) input)))
-         '(0 1 2))
-       (filter is-valid-triangle?)
-       (count)))
+  (->> (partition 3 (flatten (apply mapv vector input))) (part-1)))
+
+(println (part-1 input) (part-2))
