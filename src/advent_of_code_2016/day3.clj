@@ -3,23 +3,23 @@
             [clojure.string :as str]))
 
 (def input
-  (map #(str/trim %)
-       (-> (slurp (io/resource "day3-input.txt"))
-           (str/split #"\n"))))
+  (->> (-> (slurp (io/resource "day3-input.txt"))
+           (str/split #"\n"))
+       (map #(str/trim %))
+       (map (fn [line] (->> (str/split line #" ")
+                            (filter (comp not empty?))
+                            (map #(read-string %)))))))
 
-(def clean-input
-  (->> input
-       (map (fn [line]
-              (->> (str/split line #" ")
-                   (filter (comp not empty?))
-                   (map #(read-string %)))))))
+(defn is-valid-triangle? [[a b c]]
+  (and (> (+ a b) c) (> (+ b c) a) (> (+ a c) b)))
 
 (defn part-1 []
-  (->> clean-input
-       (filter (fn [[a b c]]
-                 (and (> (+ a b) c)
-                      (> (+ b c) a)
-                      (> (+ a c) b))))
+  (->> input (filter is-valid-triangle?) (count)))
+
+(defn part-2 []
+  (->> (mapcat
+         (fn [idx]
+           (partition 3 (map #(nth % idx) input)))
+         '(0 1 2))
+       (filter is-valid-triangle?)
        (count)))
-
-
