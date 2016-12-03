@@ -6,12 +6,16 @@
   (-> (slurp (io/resource "day2-input.txt"))
       (str/split #"\n")))
 
+;; part 1
 (defn move [[x y] dir]
   (cond 
     (= dir \U) [x (max (dec y) -1)]
     (= dir \D) [x (min (inc y) 1)]
     (= dir \L) [(max (dec x) -1) y]
     (= dir \R) [(min (inc x) 1) y]))
+
+(defn pos->num [d keypad]
+  (fn [[x y]] (get-in keypad [(+ d y) (+ d x)])))
 
 (defn compute-codes [move-fn input results curr]
   (if (empty? input) results
@@ -20,10 +24,9 @@
 
 (defn part-1 []
   (let [keypad [[1 2 3] [4 5 6] [7 8 9]]
-        pos->num (fn [[x y]] 
-                   (get-in keypad [(inc y) (inc x)]))]
+        p->n (pos->num 1 keypad)]
     (->> (compute-codes move input [] [0 0])
-         (map pos->num))))
+         (map p->n))))
 
 ;; part 2
 (def keypad [[nil nil 1 nil nil]
@@ -42,9 +45,8 @@
     (if (nil? value) [x y] [u v])))
 
 (defn part-2 []
-  (let [pos->num (fn [[x y]]
-                   (get-in keypad [(+ 2 y) (+ 2 x)]))]
+  (let [p->n (pos->num 2 keypad)]
     (->> (compute-codes diff-move input [] [-2 0])
-         (map pos->num))))
+         (map p->n))))
   
-
+(println (part-1) (part-2))
