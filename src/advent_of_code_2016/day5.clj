@@ -12,27 +12,31 @@
 
 (defn part-1 [s]
   (loop [res [] i 0]
-    (if (= (count res) 8) (apply str res)
+    (if (= (count res) 2) (apply str res)
       (let [hash (md5 (str s i))
             zeros (take-while #(= % \0) hash)]
         (if (= (count zeros) 5)
           (recur (conj res (nth hash 5)) (inc i))
           (recur res (inc i)))))))
 
+(defn print-pass [m]
+ (->> (range 0 8) (map #(get m (char (+ 48 %)) "-")) (apply str) (println)))
+
 (defn part-2 [s]
-  (loop [res [] i 0 found #{}]
-    (if (= (count res) 8) res
-      (let [hash (md5 (str s i))
-            zeros (take-while #(= % \0) hash)]
-        (if (and (= (count zeros) 5)
-                 (not (contains? found (nth hash 5)))
-                 (Character/isDigit (nth hash 5))
-                 (< (Integer/parseInt (str (nth hash 5))) 8))
-          (recur (conj res {:val (nth hash 6)
-                            :pos (nth hash 5) })
-                 (inc i)
-                 (conj found (nth hash 5))
-          (recur res (inc i) found))))))
+  (print-pass {})
+  (loop [res {} i 0]
+    (if (= (count res) 8) (print-pass res)
+      (let [encrypted (md5 (str s i))]
+        (if (and (= (take 5 (repeat \0)) (take 5 encrypted))
+                 (nil? (get res (nth encrypted 5)))
+                 (Character/isDigit (nth encrypted 5))
+                 (< (Integer/parseInt (str (nth encrypted 5))) 8))
+          (do
+            (print-pass (assoc res (nth encrypted 5) (nth encrypted 6))) ;; found next char
+            (recur (assoc res (nth encrypted 5) (nth encrypted 6)) (inc i)))
+          (recur res (inc i)))))))
 
 ;; part 1
-; (println (part-1 "ugkcyxxp"))
+(println (part-1 "ugkcyxxp"))
+; part 2
+(part-2 "ugkcyxxp")
