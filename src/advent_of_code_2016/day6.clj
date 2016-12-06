@@ -6,17 +6,16 @@
   (-> (slurp (io/resource "day6-input.txt"))
       (str/split #"\n")))
 
-
-(defn get-max-freq [xs]
+(defn get-max-freq [compare-fn xs]
   (->> (frequencies xs) (into []) 
-       (sort-by second >) (take 1) (first)))
+       (sort-by second compare-fn) (take 1) (first)))
 
-(defn part-1 []
+(defn solve [compare-fn]
   (->> (range 0 8)
        (map (fn [i] (->> (map #(nth % i) input)
-                         (get-max-freq)
+                         (get-max-freq compare-fn)
                          (first))))
        (apply str)))
-  
 
-
+; part 1, part 2
+(println (solve >) (solve <))
